@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace Database
+namespace Database.IO
 {
     public class SequentialFile
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Database
+namespace Database.IO
 {
     class StackFile
     {

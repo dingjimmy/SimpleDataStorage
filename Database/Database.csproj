@@ -40,9 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SequentialFile.cs" />
+    <Compile Include="StorageEngine.cs" />
+    <Compile Include="File IO\SequentialFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StackFile.cs" />
+    <Compile Include="File IO\StackFile.cs" />
+    <Compile Include="Tables\ColumnInfo.cs" />
+    <Compile Include="Tables\DataType.cs" />
+    <Compile Include="Tables\TableInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
