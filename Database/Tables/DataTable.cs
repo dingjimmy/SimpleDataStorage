@@ -17,10 +17,7 @@ namespace Database.Tables
             int recordLength = 0;
 
             //calculate record length
-            foreach (FieldInfo field in info)
-            {
-                recordLength += field.ByteLength;
-            }
+            recordLength = CalculateRecordLength(info);
 
             //create file to store data in
             table.Fields = info;
@@ -53,16 +50,16 @@ namespace Database.Tables
 
         #region CRUD Methods
 
-        public virtual Record Create(Record data)
+        public virtual Record Create(Record newRecord)
         {
-            int recPos;
-            Byte[] bytes;
-
+            int recNo;
+            
             //scan file, looking for next free record
-            for (recPos=0; recPos < file.RecordCount; recPos++)
+            for (recNo=0; recNo < file.RecordCount; recNo++)
             {
-                bytes = file.ReadRecord(recPos);
-
+                Byte[] bytes = file.ReadRecord(recNo);
+                Record rec = Record.FromBytes(bytes, Fields);
+                if (rec.IsDeleted) break;
             }
 
             //convert record into byte array
@@ -90,6 +87,17 @@ namespace Database.Tables
 
         #region Private Helper Methods
 
+        private static int CalculateRecordLength(FieldInfo[] fields)
+        {
+            int recLen = 1; //first byte contains IsDeleted flag
+            
+            foreach (FieldInfo field in fields)
+            {
+               recLen += field.ByteLength;
+            }
+
+            return recLen;
+        }
 
         #endregion
 
