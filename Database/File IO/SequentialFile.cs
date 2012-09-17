@@ -10,18 +10,16 @@ namespace Database.IO
         public bool IsOpen { get; private set; }
         public int RecordLength { get; private set; }
         public int RecordCount { get; private set; }
-        public static Encoding CharacterEncoding { get; private set; }
 
         private FileStream fs;
-        private BinaryReader br;
-        private BinaryWriter bw;
+        //private BinaryReader br;
+        //private BinaryWriter bw;
 
         public SequentialFile()
         {
             IsOpen = false;
             RecordLength = 0;
             RecordCount = 0;
-            CharacterEncoding = Encoding.Unicode;
         }
 
 
@@ -36,8 +34,6 @@ namespace Database.IO
 
             //create file, init stream, reader & writer
             file.fs = new FileStream(file.FilePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, file.RecordLength);
-            file.br = new BinaryReader(file.fs, CharacterEncoding);
-            file.bw = new BinaryWriter(file.fs, CharacterEncoding);
 
             //write metadata to file header
             file.WriteHeader();
@@ -60,10 +56,8 @@ namespace Database.IO
             //read file header
             file.ReadHeader();
 
-            //open file, init stream, reader & writer
+            //open file & init stream
             file.fs = new FileStream(file.FilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, file.RecordLength);
-            file.br = new BinaryReader(file.fs, CharacterEncoding);
-            file.bw = new BinaryWriter(file.fs, CharacterEncoding);
 
             //set isopen flag to true
             file.IsOpen = true;
@@ -76,38 +70,46 @@ namespace Database.IO
         {
             
             //flush buffers and close file
-            fs.Flush(true);
-            fs.Close();
-            fs.Dispose();
-            br.Dispose();
-            bw.Dispose();
+            if (fs != null)
+            {
+                fs.Flush(true);
+                fs.Close();
+                fs.Dispose();
 
-            //set isopen flag to false
-            IsOpen = false;
-
+                //set isopen flag to false
+                IsOpen = false;
+            }
         }
 
         private void WriteHeader()
         {
-            //write record length at position 0 of the file. takes up first 4 byte's of the file.
+            //convert integer to array of 4 bytes
+            Byte[] bytes = BitConverter.GetBytes(RecordLength);
+            
+            //write record length at position 0 of the file.
             fs.Position = 0;
-            bw.Write(RecordLength);
+            fs.Write(bytes, 0, bytes.Length);
+            
         }
 
         private void ReadHeader()
         {
+            Byte[] bytes = null;
+
             //open up file for reading to get metadata located in the header
             FileStream tempFs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4);
-            BinaryReader tempBr = new BinaryReader(tempFs, CharacterEncoding);
+            
+
+            //read the first four bytes of the file. this is our 32bit integer that designates the length of each record in the file
             tempFs.Position = 0;
+            fs.Read(bytes, 0, 4);
 
-            //read record length, which is 32bit integer at postion 0 in the file. (takes up first four bytes).
-            RecordLength = tempBr.ReadInt32();
+            //set recordlength property
+            RecordLength = BitConverter.ToInt32(bytes, 0);
 
-            //close temp reader
+            //close file
             tempFs.Close();
             tempFs.Dispose();
-            tempBr.Dispose();
         }
 
         public void WriteRecord(byte[] data, int recordNumber)

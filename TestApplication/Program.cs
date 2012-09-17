@@ -1,5 +1,5 @@
 ﻿using System;
-using Database;
+using Database.Tables;
 
 namespace TestApplication
 {
@@ -8,13 +8,23 @@ namespace TestApplication
         static void Main(string[] args)
         {
 
-            SequentialFile file = SequentialFile.Create("file.dat", 4);
-            //SequentialFile file = SequentialFile.Open("file.dat");
-           
+            FieldInfo[] fieldMasterFields = new FieldInfo[4];
+            FieldInfo[] objectMasterFields = new FieldInfo[3];
 
+            fieldMasterFields[0] = new FieldInfo("Table", DataType.Text, 128);
+            fieldMasterFields[1] = new FieldInfo("Name", DataType.Text, 128);
+            fieldMasterFields[2] = new FieldInfo("Type", DataType.Text, 128);
+            fieldMasterFields[3] = new FieldInfo("Length", DataType.Integer, 1);
 
-            file.Close();
+            objectMasterFields[0] = new FieldInfo("Name", DataType.Text, 128);
+            objectMasterFields[1] = new FieldInfo("Type", DataType.Text, 128);
+            objectMasterFields[2] = new FieldInfo("Name", DataType.Text, 128);
 
+            MasterTable fieldMaster = MasterTable.Create(@".\data", "fields", fieldMasterFields);
+            MasterTable objectMaster = MasterTable.Create(@".\data", "objects", objectMasterFields);
+
+            DataTable heroes = DataTable.Create(@".\data", "heroes", fieldMasterFields);
+            DataTable villans = DataTable.Create(@".\data", "villans", objectMasterFields);
         }
     }
 }

@@ -44,9 +44,11 @@
     <Compile Include="File IO\SequentialFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="File IO\StackFile.cs" />
-    <Compile Include="Tables\ColumnInfo.cs" />
+    <Compile Include="Tables\FieldInfo.cs" />
     <Compile Include="Tables\DataType.cs" />
-    <Compile Include="Tables\TableInfo.cs" />
+    <Compile Include="Tables\DataTable.cs" />
+    <Compile Include="Tables\MasterTable.cs" />
+    <Compile Include="Tables\Record.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

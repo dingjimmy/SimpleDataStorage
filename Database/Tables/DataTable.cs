@@ -1,0 +1,68 @@
+﻿using System;
+using Database.IO;
+using System.Collections.Generic;
+
+namespace Database.Tables
+{
+    public class DataTable
+    {
+        protected SequentialFile file;
+        protected FieldInfo[] Fields;
+
+
+        public static DataTable Create(string databasePath, string tableName, FieldInfo[] info)
+        {
+            DataTable table = new DataTable();
+            int recordLength = 0;
+
+            //calculate record length
+            foreach (FieldInfo field in info)
+            {
+                recordLength += field.ByteLength;
+            }
+
+            //create file to store data in
+            table.Fields = info;
+            table.file = SequentialFile.Create(string.Format(@"{0}\{1}.dat", databasePath, tableName), recordLength);
+
+            //return reference to new table
+            return table;
+        }
+
+        public static DataTable Open(string databasePath, string tableName, FieldInfo[] info)
+        {
+            DataTable table = new DataTable();
+
+            table.Fields = info;
+            table.file = SequentialFile.Open(string.Format(@"{0}\{1}.dat", databasePath, tableName));
+
+            return table;
+        }
+
+        public virtual void Close()
+        {
+            if (file.IsOpen) file.Close();
+        }
+
+        public virtual Record Create(Record data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<Record> Retrieve()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void Delete()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+}
