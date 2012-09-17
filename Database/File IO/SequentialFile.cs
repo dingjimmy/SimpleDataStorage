@@ -114,11 +114,32 @@ namespace Database.IO
 
         public void WriteRecord(byte[] data, int recordNumber)
         {
+            //check data is correct length
+            if (data.Length != RecordLength) throw new ArgumentOutOfRangeException("The length of the provided Byte-Array does not match record length.");
+
+            //calculate offset-position from start of stream where we will write record to
+            int offset = (recordNumber * RecordLength) + 4;
+
+            //move to offset postion, write the record and then flush the buffer to ensure data has been written to file
+            fs.Position = offset;
+            fs.Write(data,0, RecordLength);
+            fs.Flush();
+
         }
 
         public byte[] ReadRecord(int recordNumber)
         {
-            throw new NotImplementedException();
+            byte[] data = null;
+
+            //calculate offset-position from start of stream where to where the record starts
+            int offset = (recordNumber * RecordLength) + 4;
+
+            //move to offset postion and read the record
+            fs.Position = offset;
+            fs.Read(data, 0, RecordLength);
+            
+            //return record to caller
+            return data;
         }
 
 

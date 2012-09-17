@@ -9,6 +9,7 @@ namespace Database.Tables
         protected SequentialFile file;
         protected FieldInfo[] Fields;
 
+        #region Static Factory Methods
 
         public static DataTable Create(string databasePath, string tableName, FieldInfo[] info)
         {
@@ -39,14 +40,35 @@ namespace Database.Tables
             return table;
         }
 
+        #endregion
+
+        #region Maintenance Methods
+
         public virtual void Close()
         {
             if (file.IsOpen) file.Close();
         }
 
+        #endregion
+
+        #region CRUD Methods
+
         public virtual Record Create(Record data)
         {
-            throw new NotImplementedException();
+            int recPos;
+            Byte[] bytes;
+
+            //scan file, looking for next free record
+            for (recPos=0; recPos < file.RecordCount; recPos++)
+            {
+                bytes = file.ReadRecord(recPos);
+
+            }
+
+            //convert record into byte array
+
+            //write byte array to file
+
         }
 
         public virtual IEnumerable<Record> Retrieve()
@@ -63,6 +85,14 @@ namespace Database.Tables
         {
             throw new NotImplementedException();
         }
+
+        #endregion
+
+        #region Private Helper Methods
+
+
+        #endregion
+
     }
 
 }
