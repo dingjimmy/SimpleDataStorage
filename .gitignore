@@ -2,5 +2,20 @@
 bin
 obj
 
-# mstest test results
+
+# mstest test results folder
 TestResults
+
+
+# nuget packages folder
+packages
+
+
+# data folder
+App_Data
+
+
+# VS support files (not neccassary to load & build solution)
+*.suo
+*.v11.suo
+*.user
