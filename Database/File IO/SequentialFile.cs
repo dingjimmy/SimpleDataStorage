@@ -4,17 +4,39 @@ using System.Text;
 
 namespace Database.IO
 {
+    /// <summary>
+    /// Represents a collection of fixed-size records that can be written and read from anywhere in the file using a sequentially issued record number. If the record-number is not 
+    /// known when attempting to read a record, the file must be scanned sequentially and every record tested to find the desired one.
+    /// </summary>
     public class SequentialFile
     {
-        public String FilePath { get; private set; }
-        public bool IsOpen { get; private set; }
-        public int RecordLength { get; private set; }
-        public int RecordCount { get; private set; }
-
         private FileStream fs;
         //private BinaryReader br;
         //private BinaryWriter bw;
 
+        /// <summary>
+        /// The fully qualified path to the file.
+        /// </summary>
+        public String FilePath { get; private set; }
+
+        /// <summary>
+        /// A flag which indicates weather this file is currently open.
+        /// </summary>
+        public bool IsOpen { get; private set; }
+
+        /// <summary>
+        /// The length of each record.
+        /// </summary>
+        public int RecordLength { get; private set; }
+
+        /// <summary>
+        /// The total number of active records in the file.
+        /// </summary>
+        public int RecordCount { get; private set; }
+
+        /// <summary>
+        /// Creates a new instance of the SequentialFile class.
+        /// </summary>
         public SequentialFile()
         {
             IsOpen = false;
@@ -22,7 +44,9 @@ namespace Database.IO
             RecordCount = 0;
         }
 
-
+        /// <summary>
+        /// Factory method to creates a new, empty sequential access file.
+        /// </summary>
         public static SequentialFile Create(string filepath, int recordlength)
         {
             //create new instance
@@ -45,6 +69,10 @@ namespace Database.IO
             return file;
         }
 
+
+        /// <summary>
+        /// Factory method to open an existing sequential access file.
+        /// </summary>
         public static SequentialFile Open(string filepath)
         {
             //create new instance
@@ -66,6 +94,9 @@ namespace Database.IO
             return file;
         }
 
+        /// <summary>
+        /// Flushes all data in io buffers to disk, closes the underlying OS file stream and releases any resources.
+        /// </summary>
         public void Close()
         {
             
@@ -81,6 +112,9 @@ namespace Database.IO
             }
         }
 
+        /// <summary>
+        /// Updates the file header with relevent meta data, such as the current record-length.
+        /// </summary>
         private void WriteHeader()
         {
             //convert integer to array of 4 bytes
@@ -92,6 +126,9 @@ namespace Database.IO
             
         }
 
+        /// <summary>
+        /// Reads the contents of the file header into memory.
+        /// </summary>
         private void ReadHeader()
         {
             Byte[] bytes = null;
@@ -112,6 +149,9 @@ namespace Database.IO
             tempFs.Dispose();
         }
 
+        /// <summary>
+        /// Writes a record (in the form of a byte array) to the file at the position specified by the record number.
+        /// </summary>
         public void WriteRecord(byte[] data, int recordNumber)
         {
             //check data is correct length
@@ -127,6 +167,9 @@ namespace Database.IO
 
         }
 
+        /// <summary>
+        /// Reads the contents of the specified record from file into memory.
+        /// </summary>
         public byte[] ReadRecord(int recordNumber)
         {
             byte[] data = null;
@@ -141,9 +184,6 @@ namespace Database.IO
             //return record to caller
             return data;
         }
-
-
-
 
     }
 }
