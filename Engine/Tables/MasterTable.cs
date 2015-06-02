@@ -8,31 +8,35 @@ namespace Database.Tables
     {
         public static MasterTable Create(string databasePath, string tableName, FieldInfo[] info)
         {
-            MasterTable table = new MasterTable();
-            int recordLength = 0;
+            //MasterTable table = new MasterTable();
+            //int recordLength = 0;
 
-            //calculate record length
-            foreach (FieldInfo field in info)
-            {
-                recordLength += field.ByteLength;
-            }
+            ////calculate record length
+            //foreach (FieldInfo field in info)
+            //{
+            //    recordLength += field.ByteLength;
+            //}
 
-            //create file to store data in
-            table.Fields = info;
-            table.file = SequentialFile.Create(string.Format(@"{0}\{1}.mst", databasePath, tableName), recordLength);
+            ////create file to store data in
+            //table.Fields = info;
+            //table.file = SequentialFile.Create(string.Format(@"{0}\{1}.mst", databasePath, tableName), recordLength);
 
-            //return reference to new table
-            return table;
+            ////return reference to new table
+            //return table;
+
+            throw new NotImplementedException();
         }
 
         public static MasterTable Open(string databasePath, string tableName, FieldInfo[] info)
         {
-            MasterTable table = new MasterTable();
+            //MasterTable table = new MasterTable();
 
-            table.Fields = info;
-            table.file = SequentialFile.Open(string.Format(@"{0}\{1}.mst", databasePath, tableName));
+            //table.Fields = info;
+            //table.file = SequentialFile.Open(string.Format(@"{0}\{1}.mst", databasePath, tableName));
 
-            return table;
+            //return table;
+
+            throw new NotImplementedException();
         }
     }
 }

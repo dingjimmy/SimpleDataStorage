@@ -81,9 +81,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="StorageEngine.cs" />
-    <Compile Include="File IO\SequentialFile.cs" />
+    <Compile Include="IO\SequentialFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="File IO\StackFile.cs" />
+    <Compile Include="IO\StackFile.cs" />
     <Compile Include="Tables\FieldInfo.cs" />
     <Compile Include="Tables\DataType.cs" />
     <Compile Include="Tables\DataTable.cs" />

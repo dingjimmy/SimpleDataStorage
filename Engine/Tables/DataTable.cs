@@ -13,28 +13,32 @@ namespace Database.Tables
 
         public static DataTable Create(string databasePath, string tableName, FieldInfo[] info)
         {
-            DataTable table = new DataTable();
-            int recordLength = 0;
+            //DataTable table = new DataTable();
+            //int recordLength = 0;
 
-            //calculate record length
-            recordLength = CalculateRecordLength(info);
+            ////calculate record length
+            //recordLength = CalculateRecordLength(info);
 
-            //create file to store data in
-            table.Fields = info;
-            table.file = SequentialFile.Create(string.Format(@"{0}\{1}.dat", databasePath, tableName), recordLength);
+            ////create file to store data in
+            //table.Fields = info;
+            //table.file = SequentialFile.Create(string.Format(@"{0}\{1}.dat", databasePath, tableName), recordLength);
 
-            //return reference to new table
-            return table;
+            ////return reference to new table
+            //return table;
+
+            throw new NotImplementedException();
         }
 
         public static DataTable Open(string databasePath, string tableName, FieldInfo[] info)
         {
-            DataTable table = new DataTable();
+            //DataTable table = new DataTable();
 
-            table.Fields = info;
-            table.file = SequentialFile.Open(string.Format(@"{0}\{1}.dat", databasePath, tableName));
+            //table.Fields = info;
+            //table.file = SequentialFile.Open(string.Format(@"{0}\{1}.dat", databasePath, tableName));
 
-            return table;
+            //return table;
+
+            throw new NotImplementedException();
         }
 
         #endregion
