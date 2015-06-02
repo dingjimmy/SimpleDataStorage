@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.IO.Abstractions;
 
 namespace Database.IO
 {
@@ -10,9 +11,8 @@ namespace Database.IO
     /// </summary>
     public class SequentialFile
     {
-        private FileStream fs;
-        //private BinaryReader br;
-        //private BinaryWriter bw;
+        private FileStream fileStream;
+        private IFileSystem fileSystem;
 
         /// <summary>
         /// The fully qualified path to the file.
@@ -37,61 +37,48 @@ namespace Database.IO
         /// <summary>
         /// Creates a new instance of the SequentialFile class.
         /// </summary>
-        public SequentialFile()
+        public SequentialFile(IFileSystem fileSystem)
         {
+            if (fileSystem == null) throw new ArgumentNullException("fileSystem");
+
+            this.fileSystem = fileSystem;
+
             IsOpen = false;
             RecordLength = 0;
             RecordCount = 0;
         }
 
         /// <summary>
-        /// Factory method to creates a new, empty sequential access file.
+        /// Creates a new sequential access file to disk.
         /// </summary>
-        public static SequentialFile Create(string filepath, int recordlength)
+        public void Create(string filePath, int recordlength)
         {
-            //create new instance
-            SequentialFile file = new SequentialFile();
+            if (IsOpen) throw new InvalidOperationException("Can't create file. Another file has already been opened by this instance.");
+            if (this.fileSystem.File.Exists(filePath)) throw new IOException("Can't create file. It already exists.");
 
-            //set file path & record length
-            file.FilePath = filepath;
-            file.RecordLength = recordlength;
+            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None) as FileStream;
 
-            //create file, init stream, reader & writer
-            file.fs = new FileStream(file.FilePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, file.RecordLength);
+            WriteHeader();
 
-            //write metadata to file header
-            file.WriteHeader();
-
-            //set isopen flag to true
-            file.IsOpen = true;
-
-            //return file to caller
-            return file;
+            FilePath = filePath;
+            RecordLength = recordlength;
+            IsOpen = true;
         }
 
-
         /// <summary>
-        /// Factory method to open an existing sequential access file.
+        /// Open an existing sequential access file from disk.
         /// </summary>
-        public static SequentialFile Open(string filepath)
+        public void Open(string filePath)
         {
-            //create new instance
-            SequentialFile file = new SequentialFile();
+            if (IsOpen) throw new InvalidOperationException("Can't open file. Another file has already been opened by this instance.");
+            if (!this.fileSystem.File.Exists(filePath)) throw new IOException("Can't open file. It doesn't exist");
 
-            //set file path
-            file.FilePath = filepath;
+            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None) as FileStream;          
 
-            //read file header
-            file.ReadHeader();
+            ReadHeader();
 
-            //open file & init stream
-            file.fs = new FileStream(file.FilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, file.RecordLength);
-
-            //set isopen flag to true
-            file.IsOpen = true;
-
-            //return file to caller
-            return file;
+            FilePath = filePath;
+            IsOpen = true;
         }
 
         /// <summary>
@@ -101,13 +88,13 @@ namespace Database.IO
         {
             
             //flush buffers and close file
-            if (fs != null)
+            if (this.fileStream != null)
             {
-                fs.Flush(true);
-                fs.Close();
-                fs.Dispose();
+                this.fileStream.Flush(true);
+                this.fileStream.Close();
+                this.fileStream.Dispose();
 
-                //set isopen flag to false
+                //set flag to false
                 IsOpen = false;
             }
         }
@@ -115,38 +102,29 @@ namespace Database.IO
         /// <summary>
         /// Updates the file header with relevent meta data, such as the current record-length.
         /// </summary>
-        private void WriteHeader()
+        public void WriteHeader()
         {
             //convert integer to array of 4 bytes
             Byte[] bytes = BitConverter.GetBytes(RecordLength);
             
             //write record length at position 0 of the file.
-            fs.Position = 0;
-            fs.Write(bytes, 0, bytes.Length);
+            fileStream.Position = 0;
+            fileStream.Write(bytes, 0, bytes.Length);
             
         }
 
         /// <summary>
         /// Reads the contents of the file header into memory.
         /// </summary>
-        private void ReadHeader()
+        public void ReadHeader()
         {
-            Byte[] bytes = null;
-
-            //open up file for reading to get metadata located in the header
-            FileStream tempFs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4);
-            
+            Byte[] bytes = null;         
 
             //read the first four bytes of the file. this is our 32bit integer that designates the length of each record in the file
-            tempFs.Position = 0;
-            fs.Read(bytes, 0, 4);
+            this.fileStream.Position = 0;
+            this.fileStream.Read(bytes, 0, 4);
 
-            //set recordlength property
             RecordLength = BitConverter.ToInt32(bytes, 0);
-
-            //close file
-            tempFs.Close();
-            tempFs.Dispose();
         }
 
         /// <summary>
@@ -161,10 +139,9 @@ namespace Database.IO
             int offset = (recordNumber * RecordLength) + 4;
 
             //move to offset postion, write the record and then flush the buffer to ensure data has been written to file
-            fs.Position = offset;
-            fs.Write(data,0, RecordLength);
-            fs.Flush();
-
+            fileStream.Position = offset;
+            fileStream.Write(data,0, RecordLength);
+            fileStream.Flush();
         }
 
         /// <summary>
@@ -178,8 +155,8 @@ namespace Database.IO
             int offset = (recordNumber * RecordLength) + 4;
 
             //move to offset postion and read the record
-            fs.Position = offset;
-            fs.Read(data, 0, RecordLength);
+            fileStream.Position = offset;
+            fileStream.Read(data, 0, RecordLength);
             
             //return record to caller
             return data;
