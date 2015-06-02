@@ -66,6 +66,7 @@ namespace Database.Tables
 
             //write byte array to file
 
+            throw new NotImplementedException();
         }
 
         public virtual IEnumerable<Record> Retrieve()

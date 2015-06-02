@@ -25,31 +25,31 @@ namespace Database.Tables
             //get data for all fields
             for(int i=0; i < fields.Length; i++)
             {
-                DataType type = fields[i].Type;
-                int byteLen = fields[i].ByteLength;
-                int Len = fields[i].Length;
+                //DataType type = fields[i].Type;
+                //int byteLen = fields[i].ByteLength;
+                //int Len = fields[i].Length;
 
-                if (type == DataType.Boolean)
-                {
-                    record.Data[i] = BitConverter.ToBoolean(bytes, byteOffset);
-                    byteOffset += byteLen;                
-                                    }
-                else if (type == DataType.Integer)
-                {
-                    record.Data[i] = BitConverter.ToInt32(bytes, byteOffset);
-                    byteOffset += byteLen;  
-                }
-                else if (type == DataType.Text)
-                {
-                    StringBuilder sb = new StringBuilder(Len)
-                    Encoding.UTF32.
+                //if (type == DataType.Boolean)
+                //{
+                //    record.Data[i] = BitConverter.ToBoolean(bytes, byteOffset);
+                //    byteOffset += byteLen;                
+                //                    }
+                //else if (type == DataType.Integer)
+                //{
+                //    record.Data[i] = BitConverter.ToInt32(bytes, byteOffset);
+                //    byteOffset += byteLen;  
+                //}
+                //else if (type == DataType.Text)
+                //{
+                //    StringBuilder sb = new StringBuilder(Len);
+                //    Encoding.UTF32.
 
-                        = BitConverter.ToBoolean(bytes, byteOffset);
-                    byteOffset += byteLen;  
-                }
-                else
-                {
-                }
+                //        = BitConverter.ToBoolean(bytes, byteOffset);
+                //    byteOffset += byteLen;  
+                //}
+                //else
+                //{
+                //}
             }
 
             //return record to caller
