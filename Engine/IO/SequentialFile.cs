@@ -10,7 +10,7 @@ namespace Database.IO
     /// </summary>
     public class SequentialFile
     {
-        private FileStream fileStream;
+        private Stream fileStream;
         private IFileSystem fileSystem;
 
         /// <summary>
@@ -55,13 +55,13 @@ namespace Database.IO
             if (IsOpen) throw new InvalidOperationException("Can't create file. Another file has already been opened by this instance.");
             if (this.fileSystem.File.Exists(filePath)) throw new IOException("Can't create file. It already exists.");
 
-            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None) as FileStream;
-
-            WriteHeader();
+            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
             FilePath = filePath;
             RecordLength = recordlength;
             IsOpen = true;
+
+            WriteHeader();
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Database.IO
             if (IsOpen) throw new InvalidOperationException("Can't open file. Another file has already been opened by this instance.");
             if (!this.fileSystem.File.Exists(filePath)) throw new IOException("Can't open file. It doesn't exist");
 
-            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None) as FileStream;          
+            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);          
 
             ReadHeader();
 
@@ -89,7 +89,7 @@ namespace Database.IO
             //flush buffers and close file
             if (this.fileStream != null)
             {
-                this.fileStream.Flush(true);
+                //this.fileStream.Flush(true);
                 this.fileStream.Close();
                 this.fileStream.Dispose();
 
