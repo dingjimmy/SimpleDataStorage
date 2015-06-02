@@ -1,6 +1,9 @@
 Simple Data Storage Engine
 ==========================
-[![Build status](https://ci.appveyor.com/api/projects/status/1b0kap3hclnc29ld/branch/master?svg=true)](https://ci.appveyor.com/project/dingjimmy/simpledatastorage/branch/master)
+
+Dev: [![Build status](https://ci.appveyor.com/api/projects/status/1b0kap3hclnc29ld/branch/dev?svg=true)](https://ci.appveyor.com/project/dingjimmy/simpledatastorage/branch/dev)
+
+Master: [![Build status](https://ci.appveyor.com/api/projects/status/1b0kap3hclnc29ld/branch/master?svg=true)](https://ci.appveyor.com/project/dingjimmy/simpledatastorage/branch/master)
 
 
 
