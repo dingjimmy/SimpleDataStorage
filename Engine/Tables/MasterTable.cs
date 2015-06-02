@@ -1,8 +1,8 @@
 ﻿using System;
-using Database.IO;
+using Engine.IO;
 using System.Collections.Generic;
 
-namespace Database.Tables
+namespace Engine.Tables
 {
     public class MasterTable : DataTable
     {

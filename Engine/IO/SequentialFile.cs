@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Abstractions;
 
-namespace Database.IO
+namespace Engine.IO
 {
     /// <summary>
     /// Represents a collection of fixed-size records that can be written and read from anywhere in the file using a sequentially issued record number. If the record-number is not 

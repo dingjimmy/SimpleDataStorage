@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Database.Tables
+namespace Engine.Tables
 {
     public class Record
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Database.IO
+namespace Engine.IO
 {
     /// <summary>
     /// Represents a collection of fixed-size records that are accessed in a "last-in first-out" manner. Records can be pushed (written) and popped (read) from the top of the stack.
