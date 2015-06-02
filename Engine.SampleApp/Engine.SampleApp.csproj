@@ -83,7 +83,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Database\Engine.csproj">
+    <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{24003B50-FA8B-4EE5-9883-0559D7463869}</Project>
       <Name>Engine</Name>
     </ProjectReference>
