@@ -117,7 +117,7 @@ namespace Engine.IO
         /// </summary>
         public void ReadHeader()
         {
-            Byte[] bytes = null;         
+            byte[] bytes = new byte[4];         
 
             //read the first four bytes of the file. this is our 32bit integer that designates the length of each record in the file
             this.fileStream.Position = 0;
