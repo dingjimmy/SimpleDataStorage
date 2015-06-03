@@ -39,7 +39,7 @@ namespace Engine.IO
         public SequentialFile(IFileSystem fileSystem)
         {
             if (fileSystem == null) throw new ArgumentNullException("fileSystem");
-
+            
             this.fileSystem = fileSystem;
 
             IsOpen = false;
