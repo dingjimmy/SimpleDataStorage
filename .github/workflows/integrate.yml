@@ -22,7 +22,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
 
     - name: Restore Packages
-      run: nuget restore MySolution.sln
+      run: nuget restore 'Simple Data Storage Engine.sln'
 
     - name: Build solution
       run: msbuild 'Simple Data Storage Engine.sln' -t:rebuild -property:Configuration=Release
