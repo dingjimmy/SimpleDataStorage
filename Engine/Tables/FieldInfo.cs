@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Database.Tables
+namespace Engine.Tables
 {
     public struct FieldInfo
     {
