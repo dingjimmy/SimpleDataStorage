@@ -24,5 +24,8 @@ jobs:
     - name: Restore Packages
       run: nuget restore 'Simple Data Storage Engine.sln'
 
-    - name: Build solution
+    - name: Build Solution
       run: msbuild 'Simple Data Storage Engine.sln' -t:rebuild -property:Configuration=Release
+
+    - name: Test Solution
+      run: mstest 'Simple Data Storage Engine.sln'
