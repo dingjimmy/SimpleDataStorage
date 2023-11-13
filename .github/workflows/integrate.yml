@@ -1,4 +1,4 @@
-name: Integrate latest changes
+name: Integrate Changes
 on:
   workflow_dispatch:
   push:
