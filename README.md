@@ -1,8 +1,7 @@
 Simple Data Storage Engine
 ==========================
 
-Dev: [![Build status](https://ci.appveyor.com/api/projects/status/1b0kap3hclnc29ld/branch/dev?svg=true)](https://ci.appveyor.com/project/dingjimmy/simpledatastorage/branch/dev)  
-Master: [![Build status](https://ci.appveyor.com/api/projects/status/1b0kap3hclnc29ld/branch/master?svg=true)](https://ci.appveyor.com/project/dingjimmy/simpledatastorage/branch/master)
+Main: [![Integrate Changes](https://github.com/dingjimmy/SimpleDataStorageEngine/actions/workflows/integrate.yml/badge.svg)](https://github.com/dingjimmy/SimpleDataStorageEngine/actions/workflows/integrate.yml)
 
 ### Goals
 
