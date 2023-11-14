@@ -1,7 +1,7 @@
 Simple Data Storage Engine
 ==========================
 
-[![Main](https://github.com/dingjimmy/SimpleDataStorageEngine/actions/workflows/integrate.yml/badge.svg?branch=main)](https://github.com/dingjimmy/SimpleDataStorageEngine/actions/workflows/integrate.yml?query=branch%3Amain)
+[![Integrate Changes](https://github.com/dingjimmy/SimpleDataStorageEngine/actions/workflows/integrate.yml/badge.svg)](https://github.com/dingjimmy/SimpleDataStorageEngine/actions/workflows/integrate.yml)
 
 ### Goals
 
