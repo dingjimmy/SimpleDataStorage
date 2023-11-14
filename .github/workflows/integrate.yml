@@ -8,28 +8,15 @@ on:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.5
-      
-    - name: setup-msbuild
-      uses: microsoft/setup-msbuild@v1.1
+    - uses: actions/checkout@v4
 
     - name: Restore Packages
-      run: nuget restore 'Simple Data Storage Engine.sln'
+      run: dotnet restore
 
     - name: Build Solution
-      run: msbuild 'Simple Data Storage Engine.sln' -t:rebuild -property:Configuration=Release
+      run: dotnet build -c Release --no-restore
 
     - name: Test Solution
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-        testAssembly: '*.Tests.dll'
-        searchFolder: '.\*.Tests\bin\Release\'
-        runInParallel: true
+      run: dotnet test -c Release --no-build
