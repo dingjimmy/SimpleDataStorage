@@ -30,6 +30,6 @@ jobs:
     - name: Test Solution
       uses: microsoft/vstest-action@v1.0.0
       with:
-        testAssembly: *.Tests.dll
-        searchFolder: .\*.Tests\bin\Debug\
+        testAssembly: '*.Tests.dll'
+        searchFolder: '.\*.Tests\bin\Debug\'
         runInParallel: true
