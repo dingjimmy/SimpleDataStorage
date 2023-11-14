@@ -28,4 +28,8 @@ jobs:
       run: msbuild 'Simple Data Storage Engine.sln' -t:rebuild -property:Configuration=Release
 
     - name: Test Solution
-      run: mstest 'Simple Data Storage Engine.sln'
+      uses: microsoft/vstest-action@v1.0.0
+      with:
+        testAssembly: *.Tests.dll
+        searchFolder: .\*.Tests\bin\Debug\
+        runInParallel: true
