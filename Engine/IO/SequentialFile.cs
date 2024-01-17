@@ -8,76 +8,34 @@ namespace Engine.IO
     /// Represents a collection of fixed-size records that can be written and read from anywhere in the file using a sequentially issued record number. If the record-number is not 
     /// known when attempting to read a record, the file must be scanned sequentially and every record tested to find the desired one.
     /// </summary>
-    public class SequentialFile
+    public class SequentialFile : IDataFile
     {
-        private Stream fileStream;
-        private IFileSystem fileSystem;
+        private readonly FileSystemStream _FileStream;
 
         /// <summary>
         /// The fully qualified path to the file.
         /// </summary>
-        public String FilePath { get; private set; }
-
-        /// <summary>
-        /// A flag which indicates weather this file is currently open.
-        /// </summary>
-        public bool IsOpen { get; private set; }
-
-        /// <summary>
-        /// The length of each record.
-        /// </summary>
-        public int RecordLength { get; private set; }
+        public string FilePath { get; private set; }
 
         /// <summary>
         /// The total number of active records in the file.
         /// </summary>
-        public int RecordCount { get; private set; }
+        public long RecordCount { get; private set; }
+
+        /// <summary>
+        /// The records header data
+        /// </summary>
+        public SequentialFileHeader Header { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the SequentialFile class.
         /// </summary>
-        public SequentialFile(IFileSystem fileSystem)
+        public SequentialFile(FileSystemStream fileStream)
         {
-            if (fileSystem == null) throw new ArgumentNullException("fileSystem");
-            
-            this.fileSystem = fileSystem;
+            _FileStream = fileStream ?? throw new ArgumentNullException(nameof(fileStream));
 
-            IsOpen = false;
-            RecordLength = 0;
-            RecordCount = 0;
-        }
-
-        /// <summary>
-        /// Creates a new sequential access file to disk.
-        /// </summary>
-        public void Create(string filePath, int recordlength)
-        {
-            if (IsOpen) throw new InvalidOperationException("Can't create file. Another file has already been opened by this instance.");
-            if (this.fileSystem.File.Exists(filePath)) throw new IOException("Can't create file. It already exists.");
-
-            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
-
-            FilePath = filePath;
-            RecordLength = recordlength;
-            IsOpen = true;
-
-            WriteHeader();
-        }
-
-        /// <summary>
-        /// Open an existing sequential access file from disk.
-        /// </summary>
-        public void Open(string filePath)
-        {
-            if (IsOpen) throw new InvalidOperationException("Can't open file. Another file has already been opened by this instance.");
-            if (!this.fileSystem.File.Exists(filePath)) throw new IOException("Can't open file. It doesn't exist");
-
-            this.fileStream = this.fileSystem.File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);          
-
-            ReadHeader();
-
-            FilePath = filePath;
-            IsOpen = true;
+            FilePath = fileStream.Name;
+            RecordCount = fileStream.Length / recordlength;
         }
 
         /// <summary>
@@ -85,31 +43,28 @@ namespace Engine.IO
         /// </summary>
         public void Close()
         {
-            
             //flush buffers and close file
-            if (this.fileStream != null)
+            if (_FileStream != null)
             {
-                //this.fileStream.Flush(true);
-                this.fileStream.Close();
-                this.fileStream.Dispose();
-
-                //set flag to false
-                IsOpen = false;
+                _FileStream.Flush(true);
+                _FileStream.Close();
+                _FileStream.Dispose();
             }
         }
 
         /// <summary>
         /// Updates the file header with relevent meta data, such as the current record-length.
         /// </summary>
-        public void WriteHeader()
+        public void WriteHeader(SequentialFileHeader header)
         {
+            Header = header ?? throw new ArgumentNullException(nameof(header));
+
             //convert integer to array of 4 bytes
-            Byte[] bytes = BitConverter.GetBytes(RecordLength);
+            Byte[] bytes = BitConverter.GetBytes(Header.RecordLength);
             
             //write record length at position 0 of the file.
-            fileStream.Position = 0;
-            fileStream.Write(bytes, 0, bytes.Length);
-            
+            _FileStream.Position = 0;
+            _FileStream.Write(bytes, 0, bytes.Length);            
         }
 
         /// <summary>
@@ -120,10 +75,12 @@ namespace Engine.IO
             byte[] bytes = new byte[4];         
 
             //read the first four bytes of the file. this is our 32bit integer that designates the length of each record in the file
-            this.fileStream.Position = 0;
-            this.fileStream.Read(bytes, 0, 4);
+            _FileStream.Position = 0;
+            _FileStream.Read(bytes, 0, 4);
 
-            RecordLength = BitConverter.ToInt32(bytes, 0);
+            var recordLength = BitConverter.ToInt32(bytes, 0);
+
+            Header = new SequentialFileHeader(recordLength);
         }
 
         /// <summary>
@@ -132,15 +89,15 @@ namespace Engine.IO
         public void WriteRecord(byte[] data, int recordNumber)
         {
             //check data is correct length
-            if (data.Length != RecordLength) throw new ArgumentOutOfRangeException("The length of the provided Byte-Array does not match record length.");
+            if (data.Length != Header.RecordLength) throw new ArgumentOutOfRangeException("The length of the provided Byte-Array does not match record length.");
 
             //calculate offset-position from start of stream where we will write record to
-            int offset = (recordNumber * RecordLength) + 4;
+            int offset = (recordNumber * Header.RecordLength) + 4;
 
             //move to offset postion, write the record and then flush the buffer to ensure data has been written to file
-            fileStream.Position = offset;
-            fileStream.Write(data,0, RecordLength);
-            fileStream.Flush();
+            _FileStream.Position = offset;
+            _FileStream.Write(data,0, Header.RecordLength);
+            _FileStream.Flush();
         }
 
         /// <summary>
@@ -151,15 +108,34 @@ namespace Engine.IO
             byte[] data = null;
 
             //calculate offset-position from start of stream where to where the record starts
-            int offset = (recordNumber * RecordLength) + 4;
+            int offset = (recordNumber * Header.RecordLength) + 4;
 
             //move to offset postion and read the record
-            fileStream.Position = offset;
-            fileStream.Read(data, 0, RecordLength);
+            _FileStream.Position = offset;
+            _FileStream.Read(data, 0, Header.RecordLength);
             
             //return record to caller
             return data;
         }
+    }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SequentialFileHeader
+    {
+        /// <summary>
+        /// The length of each record.
+        /// </summary>
+        public int RecordLength { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="recordLength"></param>
+        public SequentialFileHeader(int recordLength)
+        {
+            RecordLength = recordLength;
+        }
     }
 }

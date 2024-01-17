@@ -6,7 +6,7 @@ namespace Engine.IO
     /// <summary>
     /// Represents a collection of fixed-size records that are accessed in a "last-in first-out" manner. Records can be pushed (written) and popped (read) from the top of the stack.
     /// </summary>
-    class StackFile
+    class StackFile : IDataFile
     {
         private FileStream fs;
         //private BinaryReader br;
@@ -44,7 +44,7 @@ namespace Engine.IO
         /// <summary>
         /// Factory method to open an existing stack file.
         /// </summary>
-        public static StackFile Open(string filepath)
+        public void Open()
         {
             throw new NotImplementedException();
         }
