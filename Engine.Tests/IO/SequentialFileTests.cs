@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Engine.IO;
 using Xunit;
@@ -13,11 +14,11 @@ namespace Engine.Tests
         public void Creating_a_sequential_file_adds_file_to_filesystem()
         {
             // Arrange
-            var sys = new MockFileSystem();      
-            var file = new SequentialFile(sys);
+            var sys = new MockFileSystem();
+            var factory = new SequentialFileFactory(sys);
 
             // Action
-            file.Create(@"C:\foo\bar.dat", 1024);
+            factory.Create(@"C:\foo\bar.dat", 1024);
 
             // Assert
             Assert.True(sys.FileExists(@"C:\foo\bar.dat"));
@@ -25,37 +26,23 @@ namespace Engine.Tests
 
         [Fact]
         [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Create_OnFileOpened_SetsIsOpenFlag()
-        {
-            // Arrange
-            var sys = new MockFileSystem();      
-            var file = new SequentialFile(sys);
-
-            // Action
-            file.Create(@"C:\foo\bar.dat", 1024);
-
-            // Assert
-            Assert.True(file.IsOpen);
-        }
-
-        [Fact]
-        [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Create_OnFileOpened_SetsRecordLength()
+        public void A_newly_created_sequential_file_has_valid_header()
         {
             // Arrange
             var sys = new MockFileSystem();
-            var file = new SequentialFile(sys);
+            var factory = new SequentialFileFactory(sys);
+            factory.Create(@"C:\foo\bar.dat", 1024);
 
             // Action
-            file.Create(@"C:\foo\bar.dat", 1024);
+            var file = factory.Open(@"C:\foo\bar.dat");
 
-            // Assert
-            Assert.Equal(1024, file.RecordLength);
+            // Assert header is valid
+            Assert.Equal(1024, file.Header.RecordLength);
         }
 
         [Fact]
         [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Create_OnFileAlreadyExists_ThrowsIOException()
+        public void Creating_a_sequential_file_fails_if_file_already_exists()
         {
             // Arrange
             var sys = new MockFileSystem();
@@ -68,53 +55,23 @@ namespace Engine.Tests
 
         [Fact]
         [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Create_OnAlreadyOpen_ThrowsInvalidOperationException()
+        public void Opening_a_sequential_file_loads_a_valid_header()
         {
             // Arrange
             var sys = new MockFileSystem();
-            var file = new SequentialFile(sys);
-            file.Create(@"C:\foo\bar.dat", 1024);
-
-            // Act & Assert - this second call of Create() should throw the exception
-            Assert.Throws<InvalidOperationException>(() => file.Create(@"C:\foo\bar.dat", 1024));
-        }
-
-        [Fact]
-        [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Open_OnFileOpened_SetsIsOpenFlag()
-        {
-            // Arrange
-            var sys = new MockFileSystem();
-            var file = new SequentialFile(sys);
+            var factory = new SequentialFileFactory(sys);
             sys.AddFile(@"C:\foo\bar.dat", CreateSequentialFileData(1024, 100));
 
             // Action
-            file.Open(@"C:\foo\bar.dat");
+            var file = factory.Open(@"C:\foo\bar.dat");
 
             // Assert
-            Assert.True(file.IsOpen);
-        }
-
-
-        [Fact]
-        [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Open_OnFileOpened_SetsRecordLength()
-        {
-            // Arrange
-            var sys = new MockFileSystem();
-            var file = new SequentialFile(sys);
-            sys.AddFile(@"C:\foo\bar.dat", CreateSequentialFileData(1024, 100));
-
-            // Action
-            file.Open(@"C:\foo\bar.dat");
-
-            // Assert
-            Assert.Equal(1024, file.RecordLength);
+            Assert.Equal(1024, file.Header.RecordLength);
         }
 
         [Fact]
         [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Open_OnFileDoesNotExist_ThrowsIOException()
+        public void Opening_a_sequential_file_fails_if_file_does_not_exist()
         {
             // Arrange
             var sys = new MockFileSystem();
@@ -127,7 +84,7 @@ namespace Engine.Tests
 
         [Fact]
         [Trait("Catagory","Engine.IO.SequentialFile")]
-        public void Open_OnAlreadyOpen_ThrowsInvalidOperationException()
+        public void Opening_a_sequential_file_fails_if_file_is_already_open()
         {
             // Arrange
             var sys = new MockFileSystem();
@@ -160,6 +117,11 @@ namespace Engine.Tests
             //}
 
             return new MockFileData(data);
+        }
+
+        public object ReadSequentialFileData()
+        {
+            
         }
 
         #endregion
