@@ -47,7 +47,7 @@ namespace Engine.Tables
 
         public virtual void Close()
         {
-            if (file.IsOpen) file.Close();
+            //if (file.IsOpen) file.Close();
         }
 
         #endregion
@@ -57,9 +57,10 @@ namespace Engine.Tables
         public virtual Record Create(Record newRecord)
         {
             int recNo;
-            
+            long recCount = file.RecordCount();
+
             //scan file, looking for next free record
-            for (recNo=0; recNo < file.RecordCount; recNo++)
+            for (recNo=0; recNo < recCount; recNo++)
             {
                 Byte[] bytes = file.ReadRecord(recNo);
                 Record rec = Record.FromBytes(bytes, Fields);

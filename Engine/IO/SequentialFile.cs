@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 
 namespace Engine.IO
 {
@@ -18,11 +19,6 @@ namespace Engine.IO
         public string FilePath { get; private set; }
 
         /// <summary>
-        /// The total number of active records in the file.
-        /// </summary>
-        public long RecordCount { get; private set; }
-
-        /// <summary>
         /// The records header data
         /// </summary>
         public SequentialFileHeader Header { get; private set; }
@@ -35,7 +31,6 @@ namespace Engine.IO
             _FileStream = fileStream ?? throw new ArgumentNullException(nameof(fileStream));
 
             FilePath = fileStream.Name;
-            RecordCount = fileStream.Length / recordlength;
         }
 
         /// <summary>
@@ -53,6 +48,14 @@ namespace Engine.IO
         }
 
         /// <summary>
+        /// Returns the number of records in the file.
+        /// </summary>
+        public long RecordCount()
+        {
+            return _FileStream.Length / Header.RecordLength;
+        }
+
+        /// <summary>
         /// Updates the file header with relevent meta data, such as the current record-length.
         /// </summary>
         public void WriteHeader(SequentialFileHeader header)
@@ -60,7 +63,7 @@ namespace Engine.IO
             Header = header ?? throw new ArgumentNullException(nameof(header));
 
             //convert integer to array of 4 bytes
-            Byte[] bytes = BitConverter.GetBytes(Header.RecordLength);
+            Byte[] bytes = BitConverter.GetBytes(header.RecordLength);
             
             //write record length at position 0 of the file.
             _FileStream.Position = 0;
