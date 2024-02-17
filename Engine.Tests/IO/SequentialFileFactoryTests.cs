@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Engine.IO;
+using Moq;
 using Xunit;
 
 namespace Engine.Tests
@@ -34,11 +36,12 @@ namespace Engine.Tests
             var factory = new SequentialFileFactory(sys);
 
             // Action
-            factory.Create(@"C:\foo\bar.dat", recordLength);
+            var sequentialFile = factory.Create(@"C:\foo\bar.dat", recordLength);
+            sequentialFile.Close();
 
             // Assert header is valid
-            var file = sys.GetFile(@"C:\foo\bar.dat");
-            var header = ReadSequentialFileHeaderData(file);
+            var fileData = sys.GetFile(@"C:\foo\bar.dat");
+            var header = ReadSequentialFileHeaderData(fileData);
             Assert.Equal(recordLength, header.RecordLength);
         }
 
@@ -49,7 +52,7 @@ namespace Engine.Tests
             // Arrange
             var sys = new MockFileSystem();
             var factory = new SequentialFileFactory(sys);
-            sys.AddFile(@"C:\foo\bar.dat", CreateSequentialFileData(1024, 10));
+            sys.AddFile(@"C:\foo\bar.dat", MockSequentialFile(1024, 10));
 
             // Act & Assert
             Assert.Throws<IOException>(() => factory.Create(@"C:\foo\bar.dat", 1024));
@@ -62,7 +65,7 @@ namespace Engine.Tests
             // Arrange
             var sys = new MockFileSystem();
             var factory = new SequentialFileFactory(sys);
-            sys.AddFile(@"C:\foo\bar.dat", CreateSequentialFileData(1024, 100));
+            sys.AddFile(@"C:\foo\bar.dat", MockSequentialFile(1024, 100));
 
             // Action
             var file = factory.Open(@"C:\foo\bar.dat");
@@ -91,17 +94,17 @@ namespace Engine.Tests
             // Arrange
             var sys = new MockFileSystem();
             var factory = new SequentialFileFactory(sys);
-            sys.AddFile(@"C:\foo\bar.dat", CreateSequentialFileData(1024, 100));            
-            factory.Open(@"C:\foo\bar.dat");  
+            sys.AddFile(@"C:\foo\bar.dat", MockSequentialFile(1024, 100, FileShare.None));            
 
             // Act & Assert - this second call of Open() should throw the exception
-            Assert.Throws<InvalidOperationException>(() => factory.Open(@"C:\foo\bar.dat"));
+            Assert.Throws<IOException>(() => factory.Open(@"C:\foo\bar.dat"));
         }
 
 
         #region Helpers
 
-        public MockFileData CreateSequentialFileData(int recordLength, int recordCount)
+
+        public MockFileData MockSequentialFile(int recordLength, int recordCount, FileShare share = FileShare.ReadWrite)
         {
             int headerSize = 4;
             int dataSize = recordCount * recordLength;
@@ -112,11 +115,15 @@ namespace Engine.Tests
             // set header
             BitConverter.GetBytes(recordLength).CopyTo(data, 0);
 
-            // set data to empty value
-            byte[] emptyData = new byte[dataSize];
-            Array.Fill<byte>(emptyData, 1);
+            // set data to rubbish non-zero value
+            Array.Fill<byte>(data, 1, 4, dataSize);
 
-            return new MockFileData(data);
+            var mfd = new MockFileData(data)
+            {
+                AllowedFileShare = share
+            };
+
+            return mfd;
         }
 
         public SequentialFileHeader ReadSequentialFileHeaderData(MockFileData data)
